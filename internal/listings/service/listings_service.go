@@ -1,10 +1,11 @@
 package service
 
 import (
+	"context"
 	"log"
 
-	"github.com/suryaadi44/ListingProject/internal/homepage/dto"
-	. "github.com/suryaadi44/ListingProject/internal/homepage/repository"
+	"github.com/suryaadi44/ListingProject/internal/listings/dto"
+	. "github.com/suryaadi44/ListingProject/internal/listings/repository"
 	global "github.com/suryaadi44/ListingProject/pkg/dto"
 )
 
@@ -12,8 +13,8 @@ type ListingsService struct {
 	lr ListingsRepository
 }
 
-func (ls ListingsService) GetBriefListings(limit int64) (dto.ListingsBriefResponse, error) {
-	itemCount, err := ls.lr.CountCollection("listings")
+func (ls ListingsService) GetBriefListings(ctx context.Context, limit int64, page int64) (dto.ListingsBriefResponse, error) {
+	itemCount, err := ls.lr.CountCollection(ctx, "listings")
 	if err != nil {
 		log.Println("[Repo]", err.Error())
 		return nil, err
@@ -24,7 +25,11 @@ func (ls ListingsService) GetBriefListings(limit int64) (dto.ListingsBriefRespon
 		panic(global.NewBaseResponse(494, true, "Listings does not exists"))
 	}
 
-	listings, err := ls.lr.ViewBriefListings(limit)
+	if page < 1 {
+		page = 1
+	}
+
+	listings, err := ls.lr.ViewBriefListings(ctx, limit, page)
 	if err != nil {
 		log.Println("[Repo] Error fetching :", err.Error())
 		return nil, err

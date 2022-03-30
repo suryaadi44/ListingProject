@@ -4,29 +4,29 @@ import (
 	"context"
 	"log"
 
-	"github.com/suryaadi44/ListingProject/internal/homepage/entity"
+	"github.com/suryaadi44/ListingProject/internal/listings/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ListingsRepository struct {
-	db  *mongo.Database
-	ctx context.Context
+	db *mongo.Database
 }
 
-func (l ListingsRepository) ViewBriefListings(limit int64) (entity.Listings, error) {
+func (l ListingsRepository) ViewBriefListings(ctx context.Context, limit int64, page int64) (entity.Listings, error) {
 	findOptions := options.Find()
 	findOptions.SetLimit(limit)
+	findOptions.SetSkip(limit * (page - 1))
 
-	result, err := l.db.Collection("listings").Find(l.ctx, bson.M{}, findOptions)
+	result, err := l.db.Collection("listings").Find(ctx, bson.M{}, findOptions)
 	if err != nil {
 		log.Println("[DB]", err.Error())
 		return nil, err
 	}
 
 	var listings entity.Listings
-	for result.Next(l.ctx) {
+	for result.Next(ctx) {
 		var listing entity.Listing
 		err := result.Decode(&listing)
 		if err != nil {
@@ -40,13 +40,13 @@ func (l ListingsRepository) ViewBriefListings(limit int64) (entity.Listings, err
 		log.Println("[DB]", err.Error())
 		return nil, err
 	}
-	result.Close(l.ctx)
+	result.Close(ctx)
 
 	return listings, nil
 }
 
-func (l ListingsRepository) CountCollection(collection string) (int64, error) {
-	itemCount, err := l.db.Collection(collection).CountDocuments(l.ctx, bson.M{})
+func (l ListingsRepository) CountCollection(ctx context.Context, collection string) (int64, error) {
+	itemCount, err := l.db.Collection(collection).CountDocuments(ctx, bson.M{})
 	if err != nil {
 		log.Println("[DB]", err.Error())
 		return 0, err

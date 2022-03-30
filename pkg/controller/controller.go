@@ -5,10 +5,11 @@ import (
 	AuthController "github.com/suryaadi44/ListingProject/internal/auth/controller"
 	UserRepository "github.com/suryaadi44/ListingProject/internal/auth/repository"
 	UserService "github.com/suryaadi44/ListingProject/internal/auth/service"
-	ListingsController "github.com/suryaadi44/ListingProject/internal/homepage/controller"
-	ListingsRepository "github.com/suryaadi44/ListingProject/internal/homepage/repository"
-	ListingsService "github.com/suryaadi44/ListingProject/internal/homepage/service"
+	ListingsController "github.com/suryaadi44/ListingProject/internal/listings/controller"
+	ListingsRepository "github.com/suryaadi44/ListingProject/internal/listings/repository"
+	ListingsService "github.com/suryaadi44/ListingProject/internal/listings/service"
 	AuthMiddleware "github.com/suryaadi44/ListingProject/internal/middleware"
+	PageController "github.com/suryaadi44/ListingProject/internal/page/controller"
 	SessionRepository "github.com/suryaadi44/ListingProject/internal/session/repository"
 	SessionService "github.com/suryaadi44/ListingProject/internal/session/service"
 	Middleware "github.com/suryaadi44/ListingProject/pkg/middleware"
@@ -32,4 +33,7 @@ func InitializeController(router *mux.Router, db *mongo.Database) {
 	listingsService := ListingsService.NewListingService(*listingsRepository)
 	listingsController := ListingsController.NewController(router, *listingsService)
 	listingsController.InitializeController()
+
+	pageController := PageController.NewPageController(router)
+	pageController.InitializeController()
 }

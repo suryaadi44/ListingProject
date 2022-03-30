@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/suryaadi44/ListingProject/internal/homepage/entity"
+import "github.com/suryaadi44/ListingProject/internal/listings/entity"
 
 type ListingBriefResponse struct {
 	Name         string        `json:"name"`
