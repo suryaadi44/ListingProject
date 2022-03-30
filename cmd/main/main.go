@@ -7,9 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/suryaadi44/LoginTest/pkg/controller"
-	Database "github.com/suryaadi44/LoginTest/pkg/database"
-	Server "github.com/suryaadi44/LoginTest/pkg/server"
+	"github.com/suryaadi44/ListingProject/pkg/controller"
+	Database "github.com/suryaadi44/ListingProject/pkg/database"
+	Server "github.com/suryaadi44/ListingProject/pkg/server"
 )
 
 func init() {

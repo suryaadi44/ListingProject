@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	. "github.com/suryaadi44/LoginTest/internal/auth/entity"
+	. "github.com/suryaadi44/ListingProject/internal/auth/entity"
 )
 
 type UserRepository struct {
