@@ -79,6 +79,8 @@
             e.preventDefault();
 
             if (checkForm()) {
+                document.getElementById("form-messages").innerHTML = "";
+                
                 const login = "/login";
 
                 fetch(login, {
