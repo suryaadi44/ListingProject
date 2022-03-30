@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 	"strconv"
-	"text/template"
 
 	"github.com/gorilla/mux"
 	. "github.com/suryaadi44/ListingProject/internal/listings/service"
@@ -16,19 +15,7 @@ type ListingsController struct {
 }
 
 func (lc *ListingsController) InitializeController() {
-	lc.router.HandleFunc("/", lc.homepageController)
 	lc.router.HandleFunc("/api/listings", lc.fetchController)
-}
-
-func (lc *ListingsController) homepageController(w http.ResponseWriter, r *http.Request) {
-	var tmpl = template.Must(template.ParseFiles("web/template/index/index.html"))
-
-	var err = tmpl.Execute(w, nil)
-
-	if err != nil {
-		global.NewBaseResponse(http.StatusInternalServerError, true, err.Error()).SendResponse(&w)
-		return
-	}
 }
 
 func (lc *ListingsController) fetchController(w http.ResponseWriter, r *http.Request) {

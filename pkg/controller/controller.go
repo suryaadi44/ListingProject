@@ -36,4 +36,7 @@ func InitializeController(router *mux.Router, db *mongo.Database) {
 
 	pageController := PageController.NewPageController(router)
 	pageController.InitializeController()
+
+	authPageController := PageController.NewAuthPageController(router)
+	authPageController.InitializeController()
 }
