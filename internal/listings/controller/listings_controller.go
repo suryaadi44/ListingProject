@@ -23,7 +23,7 @@ func (lc *ListingsController) fetchController(w http.ResponseWriter, r *http.Req
 
 	limit := queryVar.Get("limit")
 	if limit == "" {
-		limit = "20"
+		limit = "8"
 	}
 
 	page := queryVar.Get("page")
