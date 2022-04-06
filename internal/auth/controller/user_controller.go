@@ -9,15 +9,13 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/suryaadi44/ListingProject/internal/auth/entity"
+	. "github.com/suryaadi44/ListingProject/internal/auth/dto"
 	. "github.com/suryaadi44/ListingProject/internal/auth/service"
 	. "github.com/suryaadi44/ListingProject/internal/middleware"
-	. "github.com/suryaadi44/ListingProject/internal/session/entity"
 	. "github.com/suryaadi44/ListingProject/internal/session/service"
 	. "github.com/suryaadi44/ListingProject/pkg/dto"
 	. "github.com/suryaadi44/ListingProject/pkg/utils"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -48,37 +46,27 @@ func (u *UserController) loginHandler(w http.ResponseWriter, r *http.Request) {
 	payload := Form{}
 
 	if err := decoder.Decode(&payload); err != nil {
-		log.Println("[DECODE] Error decoding JSON")
+		log.Println("[Decode] Error decoding JSON")
 		NewBaseResponse(http.StatusInternalServerError, true, err.Error()).SendResponse(&w)
 		return
 	}
 
-	// TODO : Add error handling
-	saved, _ := u.userService.FindUser(payload.Username)
-	if saved.Username == payload.Username && CheckPasswordHash(payload.Password, saved.Password) {
-		log.Println("[Login Succes]", payload.Username, "login approved")
-
-		session := Session{
-			SessionToken: uuid.NewString(),
-			Username:     payload.Username,
-			Expire:       time.Now().Add(time.Duration(SESSION_EXPIRE_IN_SECOND) * time.Second),
-		}
-
-		u.sessionService.NewSession(session)
-
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_token",
-			Value:   session.SessionToken,
-			Expires: session.Expire,
-		})
-
-		NewBaseResponse(http.StatusSeeOther, false, "/succes").SendResponse(&w)
+	session, err := u.userService.AuthenticateUser(payload)
+	if err != nil {
+		log.Println("[Login Failed]", payload.Username, "login failed")
+		NewBaseResponse(http.StatusUnauthorized, true, "Inccorect Username or Password").SendResponse(&w)
 		return
 	}
 
-	log.Println("[Login Failed]", payload.Username, "login failed")
-	NewBaseResponse(http.StatusUnauthorized, true, "Inccorect Username or Password").SendResponse(&w)
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   session.SessionToken,
+		Expires: session.Expire,
+	})
+
+	NewBaseResponse(http.StatusSeeOther, false, "/succes").SendResponse(&w)
 	return
+
 }
 
 func (u *UserController) signupHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +74,7 @@ func (u *UserController) signupHandler(w http.ResponseWriter, r *http.Request) {
 	payload := Form{}
 
 	if err := decoder.Decode(&payload); err != nil {
-		log.Println("[DECODE] Error decoding JSON")
+		log.Println("[Decode] Error decoding JSON")
 		NewBaseResponse(http.StatusInternalServerError, true, err.Error()).SendResponse(&w)
 		return
 	}
@@ -96,13 +84,7 @@ func (u *UserController) signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hash, _ := HashPassword(payload.Password)
-	data := User{
-		Username: payload.Username,
-		Password: hash,
-	}
-
-	err := u.userService.NewUser(data)
+	err := u.userService.RegisterUser(payload)
 	if err == nil {
 		log.Println("[Sign Up Succes]", payload.Username, "created")
 		NewBaseResponse(http.StatusSeeOther, false, "/login").SendResponse(&w)

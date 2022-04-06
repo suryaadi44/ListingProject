@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	AuthController "github.com/suryaadi44/ListingProject/internal/auth/controller"
 	UserRepository "github.com/suryaadi44/ListingProject/internal/auth/repository"
@@ -19,11 +21,15 @@ import (
 func InitializeController(router *mux.Router, db *mongo.Database) {
 	router.Use(Middleware.ErrorHandler)
 
-	userRepository := UserRepository.NewUserRepository(db)
-	userService := UserService.NewUserService(userRepository)
+	router.PathPrefix("/static/").Handler(
+		http.StripPrefix("/static/",
+			http.FileServer(http.Dir("web/static/"))))
 
 	sessionRepository := SessionRepository.NewSessionRepository(db)
 	sessionService := SessionService.NewSessionService(sessionRepository)
+
+	userRepository := UserRepository.NewUserRepository(db)
+	userService := UserService.NewUserService(userRepository, sessionService)
 
 	middlewareService := AuthMiddleware.NewMiddlewareService(sessionService)
 	authController := AuthController.NewController(router, userService, sessionService, middlewareService)
