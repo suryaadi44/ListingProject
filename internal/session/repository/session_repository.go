@@ -11,22 +11,21 @@ import (
 )
 
 type SessionRepository struct {
-	db  *mongo.Database
-	ctx context.Context
+	db *mongo.Database
 }
 
-func (s *SessionRepository) NewSession(data Session) error {
-	_, err := s.db.Collection("session").InsertOne(s.ctx, data)
+func (s *SessionRepository) NewSession(ctx context.Context, data Session) error {
+	_, err := s.db.Collection("session").InsertOne(ctx, data)
 	if err != nil {
 		log.Println("[MONGO]", err.Error())
 	}
 	return err
 }
 
-func (s *SessionRepository) FindSession(uid string) (Session, error) {
+func (s *SessionRepository) FindSession(ctx context.Context, uid string) (Session, error) {
 	var result Session
 
-	err := s.db.Collection("session").FindOne(s.ctx, bson.M{"_id": uid}).Decode(&result)
+	err := s.db.Collection("session").FindOne(ctx, bson.M{"_id": uid}).Decode(&result)
 	if err != nil {
 		log.Println("[MONGO]", err.Error())
 	}
@@ -34,8 +33,8 @@ func (s *SessionRepository) FindSession(uid string) (Session, error) {
 	return result, err
 }
 
-func (s *SessionRepository) DeleteSession(uid string) error {
-	_, err := s.db.Collection("session").DeleteOne(s.ctx, bson.M{"_id": uid})
+func (s *SessionRepository) DeleteSession(ctx context.Context, uid string) error {
+	_, err := s.db.Collection("session").DeleteOne(ctx, bson.M{"_id": uid})
 	if err != nil {
 		log.Println("[MONGO]", err.Error())
 	}

@@ -46,7 +46,7 @@ func (u *UserController) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := u.userService.AuthenticateUser(payload)
+	session, err := u.userService.AuthenticateUser(r.Context(), payload)
 	if err != nil {
 		log.Println("[Login Failed]", payload.Username, "login failed")
 		NewBaseResponse(http.StatusUnauthorized, true, "Inccorect Username or Password").SendResponse(&w)
@@ -79,7 +79,7 @@ func (u *UserController) signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := u.userService.RegisterUser(payload)
+	err := u.userService.RegisterUser(r.Context(), payload)
 	if err == nil {
 		log.Println("[Sign Up Succes]", payload.Username, "created")
 		NewBaseResponse(http.StatusSeeOther, false, "/login").SendResponse(&w)
@@ -98,7 +98,7 @@ func (u *UserController) signupHandler(w http.ResponseWriter, r *http.Request) {
 
 func (u UserController) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if storedCookie, _ := r.Cookie("session_token"); storedCookie != nil {
-		u.sessionService.DeleteSession(storedCookie.Value)
+		u.sessionService.DeleteSession(r.Context(), storedCookie.Value)
 	}
 
 	http.SetCookie(w, &http.Cookie{

@@ -11,22 +11,21 @@ import (
 )
 
 type UserRepository struct {
-	db  *mongo.Database
-	ctx context.Context
+	db *mongo.Database
 }
 
-func (u *UserRepository) NewUser(data User) error {
-	_, err := u.db.Collection("user_db").InsertOne(u.ctx, data)
+func (u *UserRepository) NewUser(ctx context.Context, data User) error {
+	_, err := u.db.Collection("user_db").InsertOne(ctx, data)
 	if err != nil {
 		log.Println("[MONGO]", err.Error())
 	}
 	return err
 }
 
-func (u *UserRepository) FindUser(user string) (User, error) {
+func (u *UserRepository) FindUser(ctx context.Context, user string) (User, error) {
 	var result User
 
-	err := u.db.Collection("user_db").FindOne(u.ctx, bson.M{"_id": user}).Decode(&result)
+	err := u.db.Collection("user_db").FindOne(ctx, bson.M{"_id": user}).Decode(&result)
 	if err != nil {
 		log.Println("[MONGO]", err.Error())
 	}

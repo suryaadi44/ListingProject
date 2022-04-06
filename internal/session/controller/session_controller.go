@@ -30,7 +30,7 @@ func (sc *SessionController) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := sc.sessionService.FindSession(c.Value)
+	session, err := sc.sessionService.FindSession(r.Context(), c.Value)
 	if err != nil {
 		global.NewBaseResponse(http.StatusOK, true, "Not logged in").SendResponse(&w)
 		return

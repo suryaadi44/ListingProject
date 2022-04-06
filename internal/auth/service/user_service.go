@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -18,7 +19,7 @@ type UserService struct {
 	repository     *UserRepository
 }
 
-func (s *UserService) RegisterUser(user Form) error {
+func (s *UserService) RegisterUser(ctx context.Context, user Form) error {
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		return err
@@ -29,13 +30,13 @@ func (s *UserService) RegisterUser(user Form) error {
 		Password: hash,
 	}
 
-	err = s.repository.NewUser(data)
+	err = s.repository.NewUser(ctx, data)
 
 	return err
 }
 
-func (s *UserService) AuthenticateUser(user Form) (Session, error) {
-	saved, err := s.repository.FindUser(user.Username)
+func (s *UserService) AuthenticateUser(ctx context.Context, user Form) (Session, error) {
+	saved, err := s.repository.FindUser(ctx, user.Username)
 	if err != nil {
 		return Session{}, err
 	}
@@ -51,7 +52,7 @@ func (s *UserService) AuthenticateUser(user Form) (Session, error) {
 		Expire:       time.Now().Add(time.Duration(SESSION_EXPIRE_IN_SECOND) * time.Second),
 	}
 
-	err = s.sessionService.NewSession(session)
+	err = s.sessionService.NewSession(ctx, session)
 	if err != nil {
 		return Session{}, err
 	}
