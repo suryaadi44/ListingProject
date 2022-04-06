@@ -55,7 +55,17 @@
   text-decoration: none;
 }
 
+.header-blue .navbar .navbar-collapse span .logout {
+  color: rgb(255, 62, 62);
+  margin-right: .5rem;
+  text-decoration: none;
+}
+
 .header-blue .navbar .navbar-collapse span .login:hover {
+  color: #fff;
+}
+
+.header-blue .navbar .navbar-collapse span .logout:hover {
   color: #fff;
 }
 

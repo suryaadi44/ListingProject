@@ -12,7 +12,7 @@ type Middleware struct {
 	session *SessionService
 }
 
-func (m Middleware) AuthMiddleware() mux.MiddlewareFunc {
+func (m *Middleware) AuthMiddleware() mux.MiddlewareFunc {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c := &http.Cookie{}

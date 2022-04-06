@@ -11,7 +11,7 @@ import (
 
 type ListingsController struct {
 	router *mux.Router
-	ls     ListingsService
+	ls     *ListingsService
 }
 
 func (lc *ListingsController) InitializeController() {
@@ -43,6 +43,6 @@ func (lc *ListingsController) fetchController(w http.ResponseWriter, r *http.Req
 	global.NewBaseResponse(http.StatusOK, false, listingsList).SendResponse(&w)
 }
 
-func NewController(router *mux.Router, ls ListingsService) *ListingsController {
+func NewController(router *mux.Router, ls *ListingsService) *ListingsController {
 	return &ListingsController{router: router, ls: ls}
 }

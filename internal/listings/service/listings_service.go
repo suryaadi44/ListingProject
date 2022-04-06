@@ -10,7 +10,7 @@ import (
 )
 
 type ListingsService struct {
-	lr ListingsRepository
+	lr *ListingsRepository
 }
 
 func (ls ListingsService) GetBriefListings(ctx context.Context, limit int64, page int64) (dto.ListingsBriefResponse, error) {
@@ -38,6 +38,6 @@ func (ls ListingsService) GetBriefListings(ctx context.Context, limit int64, pag
 	return *dto.NewListingsBriefResponse(listings), nil
 }
 
-func NewListingService(lr ListingsRepository) *ListingsService {
+func NewListingService(lr *ListingsRepository) *ListingsService {
 	return &ListingsService{lr: lr}
 }

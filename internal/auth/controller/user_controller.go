@@ -27,14 +27,9 @@ type UserController struct {
 }
 
 func (u *UserController) InitializeController() {
-	u.router.PathPrefix("/static/").Handler(
-		http.StripPrefix("/static/",
-			http.FileServer(http.Dir("web/static/"))))
-
 	u.router.HandleFunc("/login", u.loginHandler).Methods("POST")
 	u.router.HandleFunc("/signup", u.signupHandler).Methods("POST")
 	u.router.HandleFunc("/logout", u.logoutHandler)
-	u.router.HandleFunc("/blocked", u.blockedHandler)
 
 	getContent := u.router.PathPrefix("/succes").Subrouter()
 	getContent.Use(u.middlewareService.AuthMiddleware())
@@ -64,7 +59,7 @@ func (u *UserController) loginHandler(w http.ResponseWriter, r *http.Request) {
 		Expires: session.Expire,
 	})
 
-	NewBaseResponse(http.StatusSeeOther, false, "/succes").SendResponse(&w)
+	NewBaseResponse(http.StatusSeeOther, false, "/").SendResponse(&w)
 	return
 
 }
@@ -117,15 +112,6 @@ func (u UserController) logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func (u *UserController) succesHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("web/template/succes.html"))
-	err := tmpl.Execute(w, nil)
-	if err != nil {
-		NewBaseResponse(http.StatusInternalServerError, true, err.Error()).SendResponse(&w)
-		return
-	}
-}
-
-func (u *UserController) blockedHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("web/template/blocked.html"))
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		NewBaseResponse(http.StatusInternalServerError, true, err.Error()).SendResponse(&w)
