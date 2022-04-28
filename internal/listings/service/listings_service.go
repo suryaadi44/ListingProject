@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/suryaadi44/ListingProject/internal/listings/dto"
 	. "github.com/suryaadi44/ListingProject/internal/listings/repository"
@@ -22,7 +23,7 @@ func (ls ListingsService) GetBriefListings(ctx context.Context, limit int64, pag
 
 	if itemCount == 0 {
 		log.Println("[Repo] Listings does not exists")
-		panic(global.NewBaseResponse(494, true, "Listings does not exists"))
+		panic(global.NewBaseResponse(404, true, "Listings does not exists"))
 	}
 
 	if page < 1 {
@@ -30,6 +31,33 @@ func (ls ListingsService) GetBriefListings(ctx context.Context, limit int64, pag
 	}
 
 	listings, err := ls.lr.ViewBriefListings(ctx, limit, page)
+	if err != nil {
+		log.Println("[Repo] Error fetching :", err.Error())
+		return nil, err
+	}
+
+	return *dto.NewListingsBriefResponse(listings), nil
+}
+
+func (ls ListingsService) GetListingsFromFullTextSearch(ctx context.Context, limit int64, page int64, q string) (dto.ListingsBriefResponse, error) {
+	itemCount, err := ls.lr.CountCollection(ctx, "listings")
+	if err != nil {
+		log.Println("[Repo]", err.Error())
+		return nil, err
+	}
+
+	if itemCount == 0 {
+		log.Println("[Repo] Listings does not exists")
+		panic(global.NewBaseResponse(404, true, "Listings does not exists"))
+	}
+
+	if page < 1 {
+		page = 1
+	}
+
+	q = strings.ReplaceAll(q, "\"", "")
+
+	listings, err := ls.lr.FullTextSearchListings(ctx, limit, page, q)
 	if err != nil {
 		log.Println("[Repo] Error fetching :", err.Error())
 		return nil, err

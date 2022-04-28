@@ -24,15 +24,20 @@
             <div class="collapse navbar-collapse" id="navcol-1">
                 <div class="container">
                     <form class="d-flex search" method="get" action="/search">
-                        <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <input class="form-control me-2" type="search" name="q" placeholder="Search"
+                            aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                 </div>
 
                 <div class="container d-flex justify-content-end">
                     <div class="navbar-text actions profile">
-                        <a class="login" href="/login">Log In</a>
-                        <a class="btn action-button" role="button" href="/signup">Sign Up</a>
+                        {{if .LoggedIn}}
+                        <a>{{.Username}}<a> | <a class="logout" href="/logout">Log out</a>
+                                {{else}}
+                                <a class="login" href="/login">Log In</a>
+                                <a class="btn action-button" role="button" href="/signup">Sign Up</a>
+                                {{end}}
                     </div>
                 </div>
             </div>
@@ -41,28 +46,18 @@
 
     <main class="main justify-content-center">
         <div class="container">
-            <div class="simple-slider">
-                <div class="swiper-container">
-                    <div class="swiper-wrapper justify-content-center">
-                        <div class="swiper-slide"
-                            style="background: url(&quot;https://cdn.bootstrapstudio.io/placeholders/1400x800.png&quot;) center center / cover no-repeat;max-height: 200px;">
-                        </div>
-                        <div class="swiper-slide"
-                            style="background: url(&quot;https://cdn.bootstrapstudio.io/placeholders/1400x800.png&quot;) center center / cover no-repeat;max-height: 200px;">
-                        </div>
-                        <div class="swiper-slide"
-                            style="background: url(&quot;https://cdn.bootstrapstudio.io/placeholders/1400x800.png&quot;) center center / cover no-repeat;max-height: 200px;">
-                        </div>
+            <div class="row listing-container justify-content-center">
+                {{range .Listings}}
+                <div class="card" style="width: 18rem;">
+                    <img src="{{.ImagesUrl}}" class="card-img-top" alt="${listing.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{.Name}}</h5>
+                        <h6 class="card-subtitle mb-2">${{.Price}}</h6>
+                        <p class="card-text">{{.Summary}}</p>
                     </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-prev"></div>
-                    <div class="swiper-button-next"></div>
                 </div>
+                {{end}}
             </div>
-        </div>
-        <div class="container">
-            <h2 style="text-align: center;">Recomendation</h2>
-            <div class="row listing-container justify-content-center"></div>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     <li class="page-item">
@@ -118,84 +113,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/6.4.8/swiper-bundle.min.js"></script>
     <script src="static/js/Simple-Slider.js"></script>
     <script>
-        let page = 1;
+        let url = new URL(window.location.href);
+        const pageParam = url.searchParams.get('page');
         let cursor = 1;
+        let page = 1;
+        
+        if (pageParam){
+            page = parseInt(pageParam);
+        }
+
         document.querySelector(".next-button").addEventListener("click", (e) => {
             page++;
-            renderListings();
-
+            render();
         })
         document.querySelector(".prev-button").addEventListener("click", (e) => {
             if (page > 1) {
                 page--;
             }
-            renderListings();
+            render();
         })
 
-
-        async function getUserProfile() {
-            let url = '/api/user';
-            try {
-                let res = await fetch(url, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                return await res.json();
-            } catch (error) {
-                console.log(error);
-            }
+        function render() {
+            url.searchParams.set('page', page);
+            window.location.href = url;
         }
-
-        async function renderUserProfile() {
-            let profile = await getUserProfile();
-            if (!profile.error) {
-                let container = document.querySelector('.profile');
-                container.innerHTML = `<a>${profile.data.username}<a> | <a class="logout" href="/logout">Log out</a>`;
-            }
-        }
-
-
-        async function getListings() {
-            let url = '/api/listings' + '?page=' + page;
-            try {
-                let res = await fetch(url);
-                return await res.json();
-            } catch (error) {
-                console.log(error);
-            }
-        }
-
-        async function renderListings() {
-            let listings = await getListings();
-            let html = '';
-            listings.data.forEach(listing => {
-                if (listing.summary.length > 100) {
-                    listing.summary = listing.summary.substring(0, 200) + "...";
-                };
-
-                let htmlSegment = `<div class="card" style="width: 18rem;">
-                    <img src="${listing.images}" class="card-img-top" alt="${listing.name}">
-                    <div class="card-body">
-                        <h5 class="card-title">${listing.name}</h5>
-                        <h6 class="card-subtitle mb-2">$${listing.price}</h6>
-                        <p class="card-text">${listing.summary}</p>
-                    </div>
-                </div>`;
-
-                html += htmlSegment;
-            });
-
-            let container = document.querySelector('.listing-container');
-            container.innerHTML = html;
-
-
-            //document.querySelector(".page-link-first").innerHTML = 
-            //document.querySelector(".page-link-first").innerHTML = 
-            //document.querySelector(".page-link-first").innerHTML = 
-
-        }
-        renderListings();
-        renderUserProfile();
     </script>
 </body>
 

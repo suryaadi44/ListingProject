@@ -40,7 +40,7 @@ func InitializeController(router *mux.Router, db *mongo.Database) {
 
 	listingsRepository := ListingsRepository.NewListingRepository(db)
 	listingsService := ListingsService.NewListingService(listingsRepository)
-	listingsController := ListingsController.NewController(router, listingsService)
+	listingsController := ListingsController.NewController(router, listingsService, sessionService)
 	listingsController.InitializeController()
 
 	pageController := PageController.NewPageController(router)

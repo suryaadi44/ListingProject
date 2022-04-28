@@ -45,6 +45,37 @@ func (l ListingsRepository) ViewBriefListings(ctx context.Context, limit int64, 
 	return listings, nil
 }
 
+func (l ListingsRepository) FullTextSearchListings(ctx context.Context, limit int64, page int64, q string) (entity.Listings, error) {
+	findOptions := options.Find()
+	findOptions.SetLimit(limit)
+	findOptions.SetSkip(limit * (page - 1))
+
+	result, err := l.db.Collection("listings").Find(ctx, bson.M{"$text": bson.M{"$search": q}}, findOptions)
+	if err != nil {
+		log.Println("[DB]", err.Error())
+		return nil, err
+	}
+
+	var listings entity.Listings
+	for result.Next(ctx) {
+		var listing entity.Listing
+		err := result.Decode(&listing)
+		if err != nil {
+			log.Println("[DB]", err.Error())
+		}
+
+		listings = append(listings, listing)
+	}
+
+	if err := result.Err(); err != nil {
+		log.Println("[DB]", err.Error())
+		return nil, err
+	}
+	result.Close(ctx)
+
+	return listings, nil
+}
+
 func (l ListingsRepository) CountCollection(ctx context.Context, collection string) (int64, error) {
 	itemCount, err := l.db.Collection(collection).CountDocuments(ctx, bson.M{})
 	if err != nil {
