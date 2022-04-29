@@ -3,12 +3,14 @@
     border-color: #3f2178;
 }
 
-.btn-outline-success:hover {
+.btn-outline-success:hover{
     background: #3f2178;
 }
 
-.card-img-top .fit-cover .img-container {
-    height: 250px;
+.fit-cover {
     object-fit: cover;
 }
 
+.img-container{
+    height: 250px;
+}
